@@ -12,7 +12,7 @@ const VaultCard = ({logo, logo1, logo2, logo3, link, name, apy, short_desription
                     <span className='vault-name'>{name} </span>
                 </div>
                 <div className='col-sm-4' style={{ fontWeight: 'bold', top: '13px' }}>
-                    APY {apy}
+                    APR {apy}
                 </div>
                 <div className='col-sm-3 text-right'>
                     <div>

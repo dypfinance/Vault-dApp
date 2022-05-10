@@ -37,6 +37,13 @@ window.config = {
 	vault_dai_address_90days: '0x8ad8e5FA0f2781dA3327275049B5469275A1042E',
 	token_dai_address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 
+	token_idyp_address: '0xBD100d061E120b2c67A24453CF6368E63f1Be056',
+	vault_weth_address: '0x28eabA060E5EF0d41eeB20d41aafaE8f685739d9',
+	vault_wbtc_address: '0x2F2cff66fEB7320FC9Adf91b7B74bFb5a80C7C35',
+	vault_usdt_address: '0xA987aEE0189Af45d5FA95a9FBBCB4374228f375E',
+	vault_usdc_address: '0x251B9ee6cEd97565A821C5608014a107ddc9C98F',
+	vault_dai_address: '0x54F30bFfeb925F47225e148f0bAe17a452d6b8c0',
+
 	etherscan_baseURL: 'https://etherscan.io',
 	compound_network: 'mainnet',
 	compound_api_key: null,
@@ -51,8 +58,12 @@ window.config = {
 		'0xdac17f958d2ee523a2206206994597c13d831ec7': 'tether',
 		'0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
 		'0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'bitcoin',
-		'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'dai'
-	}
+		'0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 'dai',
+		'0xbd100d061e120b2c67a24453cf6368e63f1be056': 'idefiyieldprotocol'
+	},
+
+	//token DYPS
+	reward_token_dyps_address: '0xd4f11Bf85D751F426EF59b705E42b3da3357250f'
 }
 
 window.vaultsEth = [
@@ -2655,6 +2666,157 @@ class VAULT {
 
 }
 
+class VAULT_NEW {
+	constructor(vaultAddress, tokenAddress) {
+		this._address = vaultAddress;
+		this.tokenAddress = tokenAddress;
+		[
+			"owner",
+			"getExchangeRateStored",
+			"LOCKUP_DURATION",
+			"UNDERLYING_DECIMALS",
+			"TRUSTED_CTOKEN_ADDRESS",
+			"MIN_ETH_FEE_IN_WEI",
+			"FEE_PERCENT_X_100",
+			"FEE_PERCENT_TO_BUYBACK_X_100",
+			"REWARD_INTERVAL",
+			"contractStartTime",
+			"getNumberOfHolders",
+			"cTokenBalance",
+			"depositTokenBalance",
+			"totalTokensDepositedByUser",
+			"totalTokensWithdrawnByUser",
+			"totalEarnedCompoundDivs",
+			"totalEarnedEthDivs",
+			"totalEarnedTokenDivs",
+			"totalEarnedPlatformTokenDivs",
+			"depositTime",
+			"lastClaimedTime",
+			"totalDepositedTokens",
+			"totalCTokens",
+			"tokenDivsBalance",
+			"ethDivsBalance",
+			"platformTokenDivsBalance",
+			"totalEthDisbursed",
+			"totalTokensDisbursed",
+			"tokenDivsOwing",
+			"ethDivsOwing",
+			"getDepositorsList",
+			"platformTokenDivsOwing",
+			"getEstimatedCompoundDivsOwing"
+		].forEach(fn_name => {
+			this[fn_name] = async function (...args) {
+				let contract = await getVaultContract(vaultAddress)
+				return (await contract.methods[fn_name](...args).call())
+			}
+		});
+
+		[
+			"claim",
+			"getExchangeRateCurrent",
+			"deposit",
+			"withdraw"
+		].forEach(fn_name => {
+			this[fn_name] = async function (args, value=0) {
+				let contract = await getVaultContract(vaultAddress)
+				return (await contract.methods[fn_name](...args).send({ value, from: await getCoinbase() }))
+			}
+		})
+	}
+
+	approveToken = async (amount) => {
+		let token_contract = await getTokenContract(this.tokenAddress)
+		return (await token_contract.methods.approve(this._address, amount).send({ value, from: await getCoinbase() }))
+	}
+
+	getTvlUsdAndApyPercent = async (UNDERLYING_DECIMALS=18, PLATFORM_TOKEN_DECIMALS=18) => {
+		let ethBalance = await window.web3.eth.getBalance(this._address)
+		let underlyingBalance1 = await this.totalDepositedTokens()
+		let underlyingBalance2 = await (await getTokenContract(this.tokenAddress)).methods.balanceOf(this._address).call()
+		let platformTokenBalance = await (await getTokenContract(window.config.token_idyp_address)).methods.balanceOf(this._address).call()
+
+		ethBalance = ethBalance / 1e18
+		underlyingBalance1 = underlyingBalance1 / 10 ** UNDERLYING_DECIMALS
+		underlyingBalance2 = underlyingBalance2 / 10 ** UNDERLYING_DECIMALS
+		let underlyingBalance = underlyingBalance1 + underlyingBalance2
+		platformTokenBalance = platformTokenBalance / 10 ** PLATFORM_TOKEN_DECIMALS
+
+		let underlyingId = window.config.cg_ids[this.tokenAddress.toLowerCase()]
+		let platformTokenId = window.config.cg_ids[window.config.token_idyp_address.toLowerCase()]
+		let priceIds = `ethereum,${underlyingId},${platformTokenId}`
+		let prices = await getPrices(priceIds)
+
+		let ethUsdValue = (ethBalance * prices['ethereum']['usd']) || 0
+		let underlyingUsdValue = (underlyingBalance * prices[underlyingId]['usd']) || 0
+		let platformTokenUsdValue = (platformTokenBalance * prices[platformTokenId]['usd']) || 0
+
+		let tvlUsd = (ethUsdValue + underlyingUsdValue + platformTokenUsdValue) || 0
+
+
+
+
+		// ------- apy percent calculations ----------
+		let apyPercent = 0
+
+		let platformTokenApyPercent = 0;
+
+		let contractStartTime = await this.contractStartTime()
+		let now = Math.floor(Date.now() / 1e3)
+		let daysSinceDeployment = Math.floor(Math.max(1, (now - contractStartTime) / 60 / 60 / 24  || 1))
+		let totalEthDisbursed = await this.totalEthDisbursed()
+		let totalTokensDisbursed = await this.totalTokensDisbursed()
+
+		totalEthDisbursed  = totalEthDisbursed / 1e18
+		totalTokensDisbursed = totalTokensDisbursed / 10 ** UNDERLYING_DECIMALS
+
+		let usdValueOfEthDisbursed = (totalEthDisbursed * prices['ethereum']['usd']) || 0
+		let usdValueOfTokenDisbursed = (totalTokensDisbursed * prices[underlyingId]['usd']) || 0
+		let usdValueDisbursed = (usdValueOfEthDisbursed + usdValueOfTokenDisbursed) || 0
+		let usdValueDisbursedPerDay = usdValueDisbursed / daysSinceDeployment
+
+		let usdValueDisbursedPerYear = usdValueDisbursedPerDay * 365
+
+		let usdValueOfDepositedTokens = (underlyingBalance1 * prices[underlyingId]['usd']) || 1
+
+		let feesApyPercent = (usdValueDisbursedPerYear / usdValueOfDepositedTokens) * 100
+
+		let compoundApyPercent = 0
+
+		let ctokenAddr = await this.TRUSTED_CTOKEN_ADDRESS()
+
+		let compResult = await window.jQuery.ajax({
+			url: `https://api.compound.finance/api/v2/ctoken?addresses=${ctokenAddr}&network=${window.config.compound_network}`,
+			method: 'GET',
+			headers: {
+				'compound-api-key': window.config.compound_api_key
+			}
+		})
+
+		if (!compResult.error) {
+			compoundApyPercent = (Number(compResult.cToken[0]?.supply_rate?.value) || 0)*100
+		}
+
+		//console.log({compResult, compoundApyPercent})
+
+		apyPercent = (platformTokenApyPercent + compoundApyPercent + feesApyPercent)||0
+
+		// console.log({
+		// 	tvlUsd,ethUsdValue,underlyingUsdValue,platformTokenUsdValue,
+		// 	underlyingBalance, ethBalance, platformTokenBalance,
+		//
+		// 	feesApyPercent, platformTokenApyPercent, compoundApyPercent, apyPercent
+		// })
+
+		// console.log({
+		// 	usdValueDisbursed, usdValueDisbursedPerDay, usdValueDisbursedPerYear,
+		// 	usdValueOfDepositedTokens
+		// })
+
+		return {tvl_usd: tvlUsd, apy_percent: apyPercent}
+	}
+
+}
+
 
 function wait(ms) {
 	console.log("Waiting " + ms + 'ms')
@@ -2748,3 +2910,28 @@ window.vault_dai_3days = new VAULT(window.config.vault_dai_address_3days, window
 window.vault_dai_30days = new VAULT(window.config.vault_dai_address_30days, window.config.token_dai_address)
 window.vault_dai_60days = new VAULT(window.config.vault_dai_address_60days, window.config.token_dai_address)
 window.vault_dai_90days = new VAULT(window.config.vault_dai_address_90days, window.config.token_dai_address)
+
+//NEW Vaults
+
+window.token_idyp = new TOKEN(window.config.token_idyp_address)
+
+window.vault_weth = new VAULT_NEW(window.config.vault_weth_address, window.config.token_weth_address)
+window.vault_wbtc = new VAULT_NEW(window.config.vault_wbtc_address, window.config.token_wbtc_address)
+window.vault_usdt = new VAULT_NEW(window.config.vault_usdt_address, window.config.token_usdt_address)
+window.vault_usdc = new VAULT_NEW(window.config.vault_usdc_address, window.config.token_usdc_address)
+window.vault_dai = new VAULT_NEW(window.config.vault_dai_address, window.config.token_dai_address)
+
+//Token DYPS
+window.token_dyps = new TOKEN(window.config.reward_token_dyps_address)
+
+async function get_the_graph_eth_v2() {
+	try {
+		const res = await getData('https://api.dyp.finance/api/the_graph_eth_v2')
+		window.the_graph_result_eth_v2 = res.the_graph_eth_v2
+	} catch(err) {
+		console.log(err);
+	}
+	return window.the_graph_result_eth_v2
+}
+
+window.get_the_graph_eth_v2 = get_the_graph_eth_v2

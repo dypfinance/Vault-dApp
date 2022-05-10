@@ -12,7 +12,7 @@ const VaultCard = ({logo1, logo2, link, name, logo, apy}) => (
                     <span className='vault-name'>{name} </span>
                 </div>
                 <div className='col-sm-4' style={{ fontWeight: 'bold' }}>
-                    APY {apy}
+                    APR {apy}
                 </div>
                 <div className="col-sm-3 text-right">
                     <h4>REWARDS</h4>

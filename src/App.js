@@ -11,6 +11,8 @@ import VaultListUsdt from "./components/staking-list-usdt"
 import VaultListUsdc from "./components/staking-list-usdc"
 import VaultListDai from "./components/staking-list-dai"
 
+import initVaultNew from './components/vault-new'
+
 import Header from './components/header'
 import Footer from './components/footer'
 
@@ -39,6 +41,14 @@ const VaultDAI_30days = initVault({ vault: window.vault_dai_30days, token: windo
 const VaultDAI_60days = initVault({ vault: window.vault_dai_60days, token: window.token_dai, platformTokenApyPercent: 13, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
 const VaultDAI_90days = initVault({ vault: window.vault_dai_90days, token: window.token_dai, platformTokenApyPercent: 16, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '28 April 2022'})
 
+//NEW Vaults
+const VaultWETH = initVaultNew({ vault: window.vault_weth, token: window.token_weth, platformTokenApyPercent: 10, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'WETH', expiration_time: '04 March 2023' })
+const VaultWBTC = initVaultNew({ vault: window.vault_wbtc, token: window.token_wbtc, platformTokenApyPercent: 10, UNDERLYING_DECIMALS: 8, UNDERLYING_SYMBOL: 'WBTC', expiration_time: '04 March 2023' })
+const VaultUSDT = initVaultNew({ vault: window.vault_usdt, token: window.token_usdt, platformTokenApyPercent: 15, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDT', expiration_time: '04 March 2023' })
+const VaultUSDC = initVaultNew({ vault: window.vault_usdc, token: window.token_usdc, platformTokenApyPercent: 15, UNDERLYING_DECIMALS: 6, UNDERLYING_SYMBOL: 'USDC', expiration_time: '04 March 2023' })
+const VaultDAI = initVaultNew({ vault: window.vault_dai, token: window.token_dai, platformTokenApyPercent: 15, UNDERLYING_DECIMALS: 18, UNDERLYING_SYMBOL: 'DAI', expiration_time: '04 March 2023'})
+
+
 const Modal = ({ handleClose, show, children }) => {
     const showHideClassName = show ? "modal display-block" : "modal display-none";
 
@@ -65,7 +75,8 @@ class App extends React.Component {
         is_wallet_connected: false,
         referrer: '',
         darkTheme: false,
-        show: false
+        show: false,
+        the_graph_result_ETH_V2: {}
     }
       this.showModal = this.showModal.bind(this)
       this.hideModal = this.hideModal.bind(this)
@@ -120,6 +131,16 @@ class App extends React.Component {
         }
       }
       this.setState({is_wallet_connected, coinbase: await window.web3.eth.getCoinbase(), referrer})
+
+       await window.wait(2000)
+
+        try {
+            let the_graph_result_ETH_V2 = await window.get_the_graph_eth_v2()
+            this.setState({ the_graph_result_ETH_V2: JSON.parse(JSON.stringify(the_graph_result_ETH_V2)) })
+        } catch (e) {
+            // window.alertify.error("Cannot fetch TVL");
+            console.error("TVL ETH V2 error: "+e)
+        }
       
     } catch (e) {
       window.alertify.error(String(e))
@@ -241,6 +262,14 @@ render() {
         <Route exact path='/vault-dai-30days' render={props => <VaultDAI_30days {...props} />} />
         <Route exact path='/vault-dai-60days' render={props => <VaultDAI_60days {...props} />} />
         <Route exact path='/vault-dai-90days' render={props => <VaultDAI_90days {...props} />} />
+
+        {/*New Vaults*/}
+        <Route exact path='/vault-weth' render={props => <VaultWETH the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-wbtc' render={props => <VaultWBTC the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-usdt' render={props => <VaultUSDT the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-usdc' render={props => <VaultUSDC the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-dai' render={props => <VaultDAI the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+
       </div>
       <Footer />
     </div>

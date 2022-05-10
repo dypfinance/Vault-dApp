@@ -288,7 +288,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
         }
 
         refreshBalance = async () => {
-            let coinbase = await window.getCoinbase()
+            let coinbase = window.coinbase_address
             this.setState({ coinbase })
             let pendingRewardsInToken = 0;
             try {
@@ -660,7 +660,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                             <p>
                                                 Approx. {getFormattedNumber(this.getApproxReturn(), 6)} {token_symbol} worth rewards.
                                     </p>
-                                            <p style={{ fontSize: '.8rem' }} className='mt-1 text-center text-muted mt-3'>Approx. Value Not Considering Fees or unstable APY.</p>
+                                            <p style={{ fontSize: '.8rem' }} className='mt-1 text-center text-muted mt-3'>Approx. Value Not Considering Fees or unstable APR.</p>
                                         </form>
                                         </div>
                                     </div>
@@ -673,7 +673,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                     number: '$'+tvl_usd
                                 },
                                 {
-                                    title: `APY`,
+                                    title: `APR`,
                                     number: getFormattedNumber(APY_TOTAL, 2) + '%'
                                 }
                             ]} />
@@ -746,7 +746,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                 <td className="text-right"><strong>${tvl_usd}</strong> <small>USD</small></td>
                                             </tr>
                                             <tr>
-                                                <th>APY</th>
+                                                <th>APR</th>
                                                 <td className="text-right"><strong>{getFormattedNumber(APY_TOTAL, 2)}</strong> <small>%</small></td>
                                             </tr>
                                             {isOwner && <tr>
