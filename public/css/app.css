@@ -52,6 +52,8 @@ body {
     --form-control-bg: #f4f4f4;
     --form-control-text: var(--stats-grey);
     --footer-text: rgba(0,0,0,.7);
+    --bg-one: #F9F5F7;
+
 }
 .l-light-btn {
     --solid-btn-bg: #F3E3E4;
@@ -82,6 +84,7 @@ body.dark {
     --form-control-bg: #3F3845;
     --form-control-text: #A1A1A1;
     --footer-text: #fff;
+    --bg-one: #101014;
 }
 .dark .l-light-btn {
     --solid-btn-bg: #4b3541;
@@ -156,9 +159,9 @@ th, td, a, a:hover, a:active, a:link, a:visited {
 
 
 small {
-    font-size: .8rem;
+    font-size: 1rem;
     position: relative;
-    top:1px;
+    /*top:1px;*/
 }
 
 button.btn-primary {
@@ -235,7 +238,7 @@ strong {
 
 
 .vaults-list {
-    margin-bottom: 10rem;
+    margin-bottom: 2rem;
     margin-top: 3rem;
 }
 .vaults-farming-list {
@@ -479,4 +482,14 @@ h3 {
     background-position: center;
     background-size: 100% 100%;
     top: 2px;
+  }
+
+  .table thead th {
+    border-bottom: 2px solid var(--box-border);
+  }
+  .table th {
+    border-top: none;
+  }
+  .table td {
+    border-top-color: var(--box-border);
   }

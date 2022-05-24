@@ -107,7 +107,18 @@ class App extends React.Component {
       return tvl
   }
 
-  getCombinedStakers = () => {
+   async componentDidMount() {
+
+       await this.setGraph()
+   }
+
+  setGraph = async () =>
+  {
+      let the_graph_result_ETH_V2 = await window.get_the_graph_eth_v2()
+      this.setState({the_graph_result_ETH_V2: JSON.parse(JSON.stringify(the_graph_result_ETH_V2))})
+  }
+
+    getCombinedStakers = () => {
       let stakers = 0
       if (!this.state.the_graph_result.lp_data) return 0
       let lp_ids = Object.keys(this.state.the_graph_result.lp_data)
@@ -149,126 +160,51 @@ class App extends React.Component {
 
 render() {
 
-    if (!this.state.is_wallet_connected) {
-        return (<div className='App text-center'>
-            <Header darkTheme={this.state.darkTheme} toggleTheme={this.toggleTheme} />
-            <div className='container App-container'>
-                <div className='mt-5'>
-                    <h3 className='mb-4'>Please connect wallet to use this dApp</h3>
-                    <Modal show={this.state.show} handleClose={this.hideModal}>
-                        <div className="sc-frDJqD ljXtWJ" data-reach-dialog-content="">
-                            <div className="sc-cmTdod kjSopy">
-                                <div className="sc-lhVmIH xuOEC">
-                                    <div className="sc-feJyhm iTaYul">
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                             stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                             strokeLinejoin="round" className="sc-iELTvK cvCpgS">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                    <div className="sc-jwKygS bFQpTL">
-                                        <div className="sc-jtRfpW iudQQC">Connect to a wallet</div>
-                                    </div>
-                                    <div className="sc-btzYZH cRGnnt">
-                                        <div className="sc-elJkPf kIebhI">
-                                            <button onClick={this.handleConnection} id="connect-METAMASK"
-                                                    className="sc-kvZOFW sc-hqyNC sc-dNLxif fJOgmn">
-                                                <div className="sc-jbKcbu GeCum">
-                                                    <div color="#E8831D" className="sc-bbmXgH eDNUCi">MetaMask</div>
-                                                </div>
-                                                <div className="sc-jnlKLf gJPfsC">
-                                                    <img src="/img/wallets/metamask.svg" alt="Icon" />
-                                                </div>
-                                            </button>
-                                            <button onClick={this.handleConnection} id="connect-COIN98" className="sc-kvZOFW sc-hqyNC sc-dNLxif fJOgmn">
-                                                <div className="sc-jbKcbu GeCum">
-                                                    <div color="#E8831D" className="sc-bbmXgH eDNUCi">Coin98</div>
-                                                </div>
-                                                <div className="sc-jnlKLf gJPfsC">
-                                                    <img src="/img/wallets/coin98.svg" alt="Icon" />
-                                                </div>
-                                            </button>
-                                            <button onClick={this.handleConnection} id="connect-COIN98" className="sc-kvZOFW sc-hqyNC sc-dNLxif fJOgmn">
-                                                <div className="sc-jbKcbu GeCum">
-                                                    <div color="#E8831D" className="sc-bbmXgH eDNUCi">Trust Wallet</div>
-                                                </div>
-                                                <div className="sc-jnlKLf gJPfsC">
-                                                    <img src="/img/wallets/trustwallet.svg" alt="Icon" />
-                                                </div>
-                                            </button>
-                                            <button onClick={this.handleConnection} id="connect-COIN98" className="sc-kvZOFW sc-hqyNC sc-dNLxif fJOgmn">
-                                                <div className="sc-jbKcbu GeCum">
-                                                    <div color="#E8831D" className="sc-bbmXgH eDNUCi">SafePal</div>
-                                                </div>
-                                                <div className="sc-jnlKLf gJPfsC">
-                                                    <img src="/img/wallets/safepal.svg" alt="Icon" />
-                                                </div>
-                                            </button>
-                                        </div>
-                                        {/*<div className="sc-bYSBpT cqlMyA"><span>New to Avalanche? &nbsp;</span> <a*/}
-                                        {/*    target="_blank" rel="noopener noreferrer"*/}
-                                        {/*    href="https://pangolin.exchange/tutorials/getting-started/#set-up-metamask"*/}
-                                        {/*    className="sc-ifAKCX jNdpwd sc-kTUwUJ kLByLx">Learn more about setting up a*/}
-                                        {/*    wallet</a></div>*/}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Modal>
-                    <button onClick={this.showModal} style={{borderRadius: '6px'}} className='btn btn-primary pr-5 pl-5'>
-                        CONNECT WALLET</button>
-                    {/*<button onClick={this.handleConnection} style={{borderRadius: '6px'}} className='btn btn-primary pr-5 pl-5'>*/}
-                    {/*    CONNECT WALLET</button>*/}
-                </div>
-            </div>
-            <Footer />
-        </div>);
-    }
+
   return (
     <div className="App">
       <Header darkTheme={this.state.darkTheme} toggleTheme={this.toggleTheme} />
       <div className='App-container'>
 
-        <Route exact path='/' render={props => <VaultList {...props} />} />
+        <Route exact path='/' render={props => <VaultList is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-list-eth' render={props => <VaultListEth {...props} />} />
-        <Route exact path='/vault-list-wbtc' render={props => <VaultListWbtc {...props} />} />
-        <Route exact path='/vault-list-usdt' render={props => <VaultListUsdt {...props} />} />
-        <Route exact path='/vault-list-usdc' render={props => <VaultListUsdc {...props} />} />
-        <Route exact path='/vault-list-dai' render={props => <VaultListDai {...props} />} />
+        <Route exact path='/vault-list-eth' render={props => <VaultListEth is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-list-wbtc' render={props => <VaultListWbtc is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-list-usdt' render={props => <VaultListUsdt is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-list-usdc' render={props => <VaultListUsdc is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-list-dai' render={props => <VaultListDai is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-weth-3days' render={props => <VaultWETH_3days {...props} />} />
-        <Route exact path='/vault-weth-30days' render={props => <VaultWETH_30days {...props} />} />
-        <Route exact path='/vault-weth-60days' render={props => <VaultWETH_60days {...props} />} />
-        <Route exact path='/vault-weth-90days' render={props => <VaultWETH_90days {...props} />} />
+        <Route exact path='/vault-weth-3days' render={props => <VaultWETH_3days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-weth-30days' render={props => <VaultWETH_30days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-weth-60days' render={props => <VaultWETH_60days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-weth-90days' render={props => <VaultWETH_90days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-wbtc-3days' render={props => <VaultWBTC_3days {...props} />} />
-        <Route exact path='/vault-wbtc-30days' render={props => <VaultWBTC_30days {...props} />} />
-        <Route exact path='/vault-wbtc-60days' render={props => <VaultWBTC_60days {...props} />} />
-        <Route exact path='/vault-wbtc-90days' render={props => <VaultWBTC_90days {...props} />} />
+        <Route exact path='/vault-wbtc-3days' render={props => <VaultWBTC_3days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-wbtc-30days' render={props => <VaultWBTC_30days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-wbtc-60days' render={props => <VaultWBTC_60days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-wbtc-90days' render={props => <VaultWBTC_90days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-usdt-3days' render={props => <VaultUSDT_3days {...props} />} />
-        <Route exact path='/vault-usdt-30days' render={props => <VaultUSDT_30days {...props} />} />
-        <Route exact path='/vault-usdt-60days' render={props => <VaultUSDT_60days {...props} />} />
-        <Route exact path='/vault-usdt-90days' render={props => <VaultUSDT_90days {...props} />} />
+        <Route exact path='/vault-usdt-3days' render={props => <VaultUSDT_3days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdt-30days' render={props => <VaultUSDT_30days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdt-60days' render={props => <VaultUSDT_60days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdt-90days' render={props => <VaultUSDT_90days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-usdc-3days' render={props => <VaultUSDC_3days {...props} />} />
-        <Route exact path='/vault-usdc-30days' render={props => <VaultUSDC_30days {...props} />} />
-        <Route exact path='/vault-usdc-60days' render={props => <VaultUSDC_60days {...props} />} />
-        <Route exact path='/vault-usdc-90days' render={props => <VaultUSDC_90days {...props} />} />
+        <Route exact path='/vault-usdc-3days' render={props => <VaultUSDC_3days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdc-30days' render={props => <VaultUSDC_30days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdc-60days' render={props => <VaultUSDC_60days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-usdc-90days' render={props => <VaultUSDC_90days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
-        <Route exact path='/vault-dai-3days' render={props => <VaultDAI_3days {...props} />} />
-        <Route exact path='/vault-dai-30days' render={props => <VaultDAI_30days {...props} />} />
-        <Route exact path='/vault-dai-60days' render={props => <VaultDAI_60days {...props} />} />
-        <Route exact path='/vault-dai-90days' render={props => <VaultDAI_90days {...props} />} />
+        <Route exact path='/vault-dai-3days' render={props => <VaultDAI_3days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-dai-30days' render={props => <VaultDAI_30days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-dai-60days' render={props => <VaultDAI_60days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
+        <Route exact path='/vault-dai-90days' render={props => <VaultDAI_90days is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} {...props} />} />
 
         {/*New Vaults*/}
-        <Route exact path='/vault-weth' render={props => <VaultWETH the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
-        <Route exact path='/vault-wbtc' render={props => <VaultWBTC the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
-        <Route exact path='/vault-usdt' render={props => <VaultUSDT the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
-        <Route exact path='/vault-usdc' render={props => <VaultUSDC the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
-        <Route exact path='/vault-dai' render={props => <VaultDAI the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-weth' render={props => <VaultWETH is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-wbtc' render={props => <VaultWBTC is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-usdt' render={props => <VaultUSDT is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-usdc' render={props => <VaultUSDC is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
+        <Route exact path='/vault-dai' render={props => <VaultDAI is_wallet_connected={this.state.is_wallet_connected} handleConnection={this.handleConnection} handleConnectionWalletConnect={this.handleConnectionWalletConnect} the_graph_result={this.state.the_graph_result_ETH_V2} {...props} />} />
 
       </div>
       <Footer />
