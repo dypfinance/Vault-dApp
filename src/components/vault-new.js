@@ -668,9 +668,9 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                                     {/*</div>*/}
                                                                 </div>
                                                                 <div className='input-group '>
-                                                                    <input value={Number(this.state.depositAmount) > 0 ? this.state.depositAmount  : this.state.depositAmount} onChange={e => this.setState({ depositAmount: e.target.value })} className='form-control left-radius' placeholder='0' type='text' />
+                                                                    <input value={Number(this.state.depositAmount) > 0 ? this.state.depositAmount  : this.state.depositAmount} onChange={e => this.setState({ depositAmount: e.target.value })} disabled={!is_connected} className='form-control left-radius' placeholder='0' type='text' />
                                                                     <div className='input-group-append'>
-                                                                        <button className='btn  btn-primary right-radius btn-max l-light-btn' style={{ cursor: 'pointer' }} onClick={this.handleSetMaxDeposit}>
+                                                                        <button className='btn  btn-primary right-radius btn-max l-light-btn' disabled={!is_connected} style={{ cursor: 'pointer' }} onClick={this.handleSetMaxDeposit}>
                                                                             MAX
                                                                         </button>
                                                                     </div>
@@ -678,12 +678,14 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                             </div>
                                                             <div className='row'>
                                                                 <div style={{ paddingRight: '0.3rem' }} className='col-6'>
-                                                                    <button onClick={this.handleApprove} className='btn  btn-block btn-primary ' type='button'>
+                                                                    <button onClick={this.handleApprove} className='btn  btn-block btn-primary ' disabled={!is_connected} type='button'>
                                                                         APPROVE
                                                                     </button>
+
+
                                                                 </div>
                                                                 <div style={{ paddingLeft: '0.3rem' }} className='col-6'>
-                                                                    <button onClick={this.handleStake} className='btn  btn-block btn-primary l-outline-btn' type='submit'>
+                                                                    <button onClick={this.handleStake} disabled={!is_connected}  className='btn  btn-block btn-primary l-outline-btn' type='submit'>
                                                                         DEPOSIT
                                                                     </button>
                                                                 </div>
@@ -717,17 +719,19 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                         <div className='form-group'>
                                                             <label htmlFor='deposit-amount' className='d-block text-left'>WITHDRAW</label>
                                                             <div className='input-group '>
-                                                                <input value={this.state.withdrawAmount} onChange={e => this.setState({ withdrawAmount:e.target.value })} className='form-control left-radius' placeholder='0' type='text' />
+                                                                <input value={this.state.withdrawAmount} onChange={e => this.setState({ withdrawAmount:e.target.value })} className='form-control left-radius' placeholder='0' type='text' disabled={!is_connected} />
                                                                 <div className='input-group-append'>
-                                                                    <button className='btn  btn-primary right-radius btn-max l-light-btn' style={{ cursor: 'pointer' }} onClick={this.handleSetMaxWithdraw}>
+                                                                    <button disabled={!is_connected} className='btn  btn-primary right-radius btn-max l-light-btn' style={{ cursor: 'pointer' }} onClick={this.handleSetMaxWithdraw}>
                                                                         MAX
                                                                     </button>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <button title={canWithdraw ? '' : `You recently deposited, you can withdraw ${cliffTimeInWords}`} disabled={!canWithdraw} className='btn  btn-primary btn-block l-outline-btn' type='submit'>
+
+                                                        <button  title={canWithdraw ? '' : `You recently deposited, you can withdraw ${cliffTimeInWords}`}  disabled={!canWithdraw || !is_connected} className='btn  btn-primary btn-block l-outline-btn' type='submit'>
                                                             WITHDRAW
                                                         </button>
+
                                                         <p style={{fontSize: '.8rem'}} className='mt-1 text-center text-muted mt-3'>0.3% fee for withdraw (75% distributed pro-rata among active vault users, whereas the remainder 25% is used to buy back iDYP and burn it)</p>
                                                     </form>
                                                 </div>
@@ -757,7 +761,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                         </div>
                                                         <div className='form-row'>
                                                             <div className='col-md-12 mb-2'>
-                                                                <button className='btn  btn-primary btn-block l-outline-btn' type='submit'>
+                                                                <button className='btn  btn-primary btn-block l-outline-btn' disabled={!is_connected} type='submit'>
                                                                     CLAIM
                                                                 </button>
                                                             </div>
@@ -775,11 +779,11 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                             <div className='row'>
                                                                 <div className='col'>
                                                                     <label style={{ fontSize: '1rem', fontWeight: 'normal' }}>{token_symbol} to Deposit</label>
-                                                                    <input className='form-control ' value={ this.state.approxDeposit} onChange={e => this.setState({ approxDeposit: e.target.value })} placeholder='0' type='text' />
+                                                                    <input  className='form-control ' value={ this.state.approxDeposit} onChange={e => this.setState({ approxDeposit: e.target.value })} placeholder='0' type='text' />
                                                                 </div>
                                                                 <div className='col'>
                                                                     <label style={{ fontSize: '1rem', fontWeight: 'normal' }}>Days</label>
-                                                                    <input className='form-control ' value={this.state.approxDays} onChange={e => this.setState({ approxDays: e.target.value })} type='text' />
+                                                                    <input  className='form-control ' value={this.state.approxDays} onChange={e => this.setState({ approxDays: e.target.value })} type='text' />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -884,11 +888,15 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                         <td className="text-right"><strong>{pendingDivs}</strong> <small>DYP</small></td>
                                     </tr> */}
 
-                                                    <tr>
-                                                        <td style={{ fontSize: '1rem', paddingTop: '2rem' }} colSpan='2' className='text-center'>
-                                                            <a target='_blank' rel='noopener noreferrer' href={`${window.config.etherscan_baseURL}/token/${token._address}?a=${coinbase}`}>View Transaction History on Etherscan</a> &nbsp; <i style={{ fontSize: '.8rem' }} className='fas fa-external-link-alt'></i>
-                                                        </td>
-                                                    </tr>
+                                                    {is_connected ?
+                                                        <tr>
+                                                            <td style={{ fontSize: '1rem', paddingTop: '2rem' }} colSpan='2' className='text-center'>
+                                                                <a target='_blank' rel='noopener noreferrer' href={`${window.config.etherscan_baseURL}/token/${token._address}?a=${coinbase}`}>View Transaction History on Etherscan</a> &nbsp; <i style={{ fontSize: '.8rem' }} className='fas fa-external-link-alt'></i>
+                                                            </td>
+                                                        </tr>
+                                                        : ''
+                                                    }
+
 
                                                     <tr>
 
