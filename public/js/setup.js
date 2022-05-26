@@ -2420,7 +2420,7 @@ window.UNISWAP_ROUTER_ABI = [{"inputs":[{"internalType":"address","name":"_facto
 
 window.ethweb3 = new Web3('https://mainnet.infura.io/v3/94608dc6ddba490697ec4f9b723b586e')
 
-window.coinbase_address = '0x0000000000000000000000000000000000000111'
+// window.coinbase_address = '0x0000000000000000000000000000000000000111'
 
 window.isConnectedOneTime = false
 window.oneTimeConnectionEvents = []
@@ -2472,12 +2472,22 @@ async function connectWallet() {
 
 
 window.cached_contracts = Object.create(null)
+window.cached_contracts_connected = {}
+
 async function getContract({key, address=null, ABI=null}) {
     ABI = ABI || window[key+'_ABI']
 	// alert(ABI)
     address = address || window.config[key.toLowerCase()+'_address']
+
+	if (!window.cached_contracts_connected[key + '-'+address.toLowerCase()]) {
+		window.cached_contracts_connected[key + '-'+address.toLowerCase()] = new window.ethweb3.eth.Contract(ABI, address, {from: await getCoinbase()})
+	}
+
+	if(!window.IS_CONNECTED)
+		return window.cached_contracts_connected[key + '-'+address.toLowerCase()]
+
     if (!window.cached_contracts[key + '-'+address.toLowerCase()]) {
-        window.cached_contracts[key + '-'+address.toLowerCase()] = new window.ethweb3.eth.Contract(ABI, address, {from: await getCoinbase()})
+        window.cached_contracts[key + '-'+address.toLowerCase()] = new window.web3.eth.Contract(ABI, address, {from: await getCoinbase()})
     }
     return window.cached_contracts[key + '-'+address.toLowerCase()]
 }
@@ -2502,18 +2512,7 @@ function getCoinbase() {
 	// else{
 	// 	return window.web3.eth.getCoinbase()
 	// }
-
-	if(window.IS_CONNECTED)
-	{
-		window.coinbase_address
-	}
-	else
-	{
-		window.coinbase_address = '0x0000000000000000000000000000000000000111';
-	}
-
-
-	return '0x0000000000000000000000000000000000000111'
+	return window.coinbase_address
 }
 
 class TOKEN {

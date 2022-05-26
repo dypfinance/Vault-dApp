@@ -162,7 +162,7 @@ render() {
 
 
   return (
-    <div className="App">
+    <div className="App" style={{overflowX: "hidden"}}>
       <Header darkTheme={this.state.darkTheme} toggleTheme={this.toggleTheme} />
       <div className='App-container'>
 

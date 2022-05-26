@@ -87,7 +87,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                 withdrawAmount: '',
                 rdepositAmount: '',
 
-                coinbase: '',
+                coinbase: '0x0000000000000000000000000000000000000111',
                 tvl_usd: '...',
                 apy_percent: '...',
                 owner: null,
@@ -307,8 +307,13 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
         }
 
         refreshBalance = async () => {
-            let coinbase = window.coinbase_address
-            this.setState({ coinbase })
+            let coinbase = this.state.coinbase
+
+            if (window.coinbase_address){
+                coinbase = window.coinbase_address
+                this.setState({ coinbase })
+            }
+
             let pendingRewardsInToken = 0;
 
             let { the_graph_result } = this.props
@@ -511,12 +516,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
             let tvl_usd = getFormattedNumber(tvlUSD, 2)
 
 
-            let is_connected = false
-
-            if(coinbase !== "0x0000000000000000000000000000000000000111")
-            {
-                is_connected = true
-            }
+            let is_connected = this.props.is_wallet_connected
 
             return (<div>
 
@@ -526,15 +526,21 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                             <div className="container">
                                 <Popup show={this.state.popup} handleClose={this.hidePopup} >
                                     <div className="earn-hero-content p4token-wrapper">
-                                        <p className='h3'><b>DYP Earn Vault</b></p>
-                                        <p>The DYP Earn Vault is an automated yield farming contract with Compound integration and support for ETH, WBTC, USDC, USDT, and DAI markets. The interest from Compound is entirely distributed to the users; from the other strategies, a substantial proportion of the profits (75%) is converted to ETH and distributed to the liquidity providers, whereas the remainder (25%) is used to buy back our protocol token and burn it.</p>
+                                        <p className='h3'><b>DYP Vault</b></p>
+                                        <p>The DYP Vault is an automated smart contract with Compound
+                                            Protocol integration and support for ETH, WBTC, USDC, USDT,
+                                            and DAI markets. The rewards from Compound Protocol are
+                                            entirely distributed to the users; from the other strategies,
+                                            a substantial proportion of the rewards (75%) is converted
+                                            to ETH and distributed to the users, whereas the remainder
+                                            (25%) is used to buy back our protocol token and burn it.</p>
                                     </div>
 
                                 </Popup>
                                 <Modal show={this.state.show} handleConnection={this.props.handleConnection} handleConnectionWalletConnect={this.props.handleConnectionWalletConnect} handleClose={this.hideModal} />
                                 <div className='row'>
                                     <div className='col-12' style={{marginBottom: '30px'}}>
-                                        <p style={{width: '100%', height: 'auto', fontFamily: 'Mulish', fontStyle: 'normal', fontWeight: '900', fontSize: '42px', lineHeight: '55px', color: '#FFFFFF', marginTop: '35px', maxHeight: '55px'}} >Vault pool</p>
+                                        <p style={{width: '100%', height: 'auto', fontFamily: 'Mulish', fontStyle: 'normal', fontWeight: '900', fontSize: '42px', lineHeight: '55px', color: '#FFFFFF', marginTop: '35px', maxHeight: '55px'}} >DYP Vault</p>
                                     </div>
                                     <div className='col-6' style={{marginBottom: '27px'}}>
                                         <div className='row'>
@@ -543,18 +549,18 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                         className='btn  btn-block btn-primary button' type='button'>
                                                     <img src="img/icon/bulb.svg" style={{float: 'left'}}
                                                          alt="wallet" />
-                                                    Vault info
+                                                    More info
                                                 </button>
                                             </div>
-                                            <div style={{paddingLeft: '20px'}} className='col-6'>
-                                                <button className onClick={()=> window.open("https://www.youtube.com/watch?v=xc2S9Jei7DA", "_blank")}
-                                                        className='btn  btn-block btn-primary l-outline-btn button'
-                                                        type='submit'>
-                                                    <img src="img/icon/video.svg" style={{float: 'left'}}
-                                                         alt="wallet" />
-                                                    Video tutorial
-                                                </button>
-                                            </div>
+                                            {/*<div style={{paddingLeft: '20px'}} className='col-6'>*/}
+                                            {/*    <button className onClick={()=> window.open("https://www.youtube.com/watch?v=xc2S9Jei7DA", "_blank")}*/}
+                                            {/*            className='btn  btn-block btn-primary l-outline-btn button'*/}
+                                            {/*            type='submit'>*/}
+                                            {/*        <img src="img/icon/video.svg" style={{float: 'left'}}*/}
+                                            {/*             alt="wallet" />*/}
+                                            {/*        Video tutorial*/}
+                                            {/*    </button>*/}
+                                            {/*</div>*/}
                                         </div>
                                     </div>
                                 </div>
