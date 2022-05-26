@@ -383,6 +383,7 @@ Medium Screen - Others
         .popup-main {
             max-width: 100%;
             width: 90%;
+            overflow: auto;
         }
 
         .modal-main {
