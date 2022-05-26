@@ -40,7 +40,7 @@ let vaults = [
         "description": "Deposit WETH and earn WETH and DYP",
         "short_description": '',
         "apy": "3%-13%",
-        "link": "/vault-list-eth"
+        "link": "/vault-weth"
     },
     {
         "hidden": false,
@@ -54,7 +54,7 @@ let vaults = [
         "description": "Deposit WBTC and earn WBTC, WETH and DYP",
         "short_description": '',
         "apy": "3%-13%",
-        "link": "/vault-list-wbtc"
+        "link": "/vault-wbtc"
     },
     {
         "hidden": false,
@@ -68,7 +68,7 @@ let vaults = [
         "description": "Deposit USDT and earn USDT, WETH and DYP",
         "short_description": '',
         "apy": "9%-23%",
-        "link": "/vault-list-usdt"
+        "link": "/vault-usdt"
     },
     {
         "hidden": false,
@@ -82,7 +82,7 @@ let vaults = [
         "description": "Deposit USDC and earn USDC, WETH and DYP",
         "short_description": '',
         "apy": "8%-22%",
-        "link": "/vault-list-usdc"
+        "link": "/vault-usdc"
     },
     {
         "hidden": false,
@@ -96,7 +96,7 @@ let vaults = [
         "description": "Deposit DAI and earn DAI, WETH and DYP",
         "short_description": '',
         "apy": "8%-21%",
-        "link": "/vault-list-dai"
+        "link": "/vault-dai"
     }
 ]
 
