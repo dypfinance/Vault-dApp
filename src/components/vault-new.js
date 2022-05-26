@@ -626,7 +626,7 @@ export default function initVault({ vault, platformTokenApyPercent, apr=72, liqu
                                                                          alt="wallet" />
                                                                     <label htmlFor="deposit-amount"
                                                                            style={{margin: '0px', top: '3px', position: 'relative', color: 'white'}}>
-                                                                        ETH Yield
+                                                                        Ethereum
                                                                     </label>
                                                                 </div>
                                                                 <div className="col-9">
